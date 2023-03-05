@@ -1,15 +1,11 @@
-# Welcome to your CDK TypeScript project
+# Welcome to ajust maintenance window
 
-You should explore the contents of this project. It demonstrates a CDK app with an instance of a stack (`MaintenenceWindowStack`)
-which contains an Amazon SQS queue that is subscribed to an Amazon SNS topic.
+npm install     // Install the package
+cdk bootstrap   // The first time you deploy an AWS CDK app into an environment (account/region), you can install a “bootstrap stack” 
+cdk deploy      // Deploy the project
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
-
-## Useful commands
-
-* `npm run build`   compile typescript to js
-* `npm run watch`   watch for changes and compile
-* `npm run test`    perform the jest unit tests
-* `cdk deploy`      deploy this stack to your default AWS account/region
-* `cdk diff`        compare deployed stack with current state
-* `cdk synth`       emits the synthesized CloudFormation template
+input example for step functions
+{
+  "region": "us-west-2",
+  "clusterIds": ["aurora-gdb-uswest2-test2", "aurora-gdb-uswest2-test3"]
+}
