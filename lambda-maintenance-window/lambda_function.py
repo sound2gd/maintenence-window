@@ -92,7 +92,6 @@ def adjust_backup_window(backup_window):
         return "{:02}:{}-{:02}:{}".format(int(begin_hour)-1, begin_minute, int(end_hour)-1, end_minute)
 
 def replace_3day_later(current_maintenance_window, day_of_week):
-    print(day_of_week)
     if day_of_week == 0:
         if current_maintenance_window[:3] in ["mon", "tue", "wed"]:
             return current_maintenance_window.replace("thu", "sun").replace("wed", "sat").replace("tue", "fri").replace("mon", "thu")
