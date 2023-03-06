@@ -54,7 +54,7 @@ def adjust_clusters_maintenance_window(rds_client, records, current_datetime):
         aurora_version = record["AuroraVersion"]
         maintenance_window = record["MaintenanceWindow"]
         backup_window = record["BackupWindow"]
-        if aurora_version[:5] != "2.11.":
+        if aurora_version[:5] in ["2.09.", "2.10."]:
             new_maintenance_window = replace_3day_later(maintenance_window, day_of_week)
             if new_maintenance_window != maintenance_window:
                 update_maintenance_window(rds_client, cluster_id, new_maintenance_window, backup_window)

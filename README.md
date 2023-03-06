@@ -1,6 +1,7 @@
 # Welcome to ajust maintenance window
 The workflow check the rds cluster maintenance window regularly. 
 It will automatically push the maintenance window 3 days later when it might be within 3 days.
+The operation will only target to Aurora version 2.09 and 2.10
 
 npm install     // Install the package
 cdk bootstrap   // The first time you deploy an AWS CDK app into an environment (account/region), you can install a “bootstrap stack” 
