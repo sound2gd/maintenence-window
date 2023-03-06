@@ -50,7 +50,7 @@ def read_clusters_maintenance_info(rds_client, clusterIds):
 def adjust_clusters_maintenance_window(rds_client, records, current_datetime):
     adjustment = []
     day_of_week = current_datetime.weekday()
-    print(day_of_week)
+    print("day of week: {}".format(day_of_week))
     for record in records:
         cluster_id = record["ClusterId"]
         aurora_version = record["AuroraVersion"]
