@@ -1,6 +1,6 @@
 import json
 import boto3
-import os
+import time
 from datetime import date, datetime
 
 
@@ -43,6 +43,8 @@ def read_clusters_maintenance_info(rds_client, clusterIds):
             "MaintenanceWindow": clusterInfo["DBClusters"][0]["PreferredMaintenanceWindow"],
             "BackupWindow": clusterInfo["DBClusters"][0]["PreferredBackupWindow"]
         })
+        # avoid API throttling
+        time.sleep(1)
     return report
 
 def adjust_clusters_maintenance_window(rds_client, records, current_datetime):
@@ -58,6 +60,8 @@ def adjust_clusters_maintenance_window(rds_client, records, current_datetime):
             new_maintenance_window = replace_3day_later(maintenance_window, day_of_week)
             if new_maintenance_window != maintenance_window:
                 update_maintenance_window(rds_client, cluster_id, new_maintenance_window, backup_window)
+                # avoid API throttling
+                time.sleep(1)
                 adjustment.append({
                     "ClusterId": cluster_id,
                     "NewMaintenanceWindow": new_maintenance_window
