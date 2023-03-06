@@ -36,8 +36,10 @@ def read_clusters_maintenance_info(rds_client, clusterIds):
     report = []
     for clusterId in clusterIds:
         clusterInfo = rds_client.describe_db_clusters(DBClusterIdentifier=clusterId)
+        _, aurora_version = clusterInfo["DBClusters"][0]["EngineVersion"].split(".mysql_aurora.")
         report.append({
             "ClusterId": clusterId,
+            "AuroraVersion": aurora_version,
             "MaintenanceWindow": clusterInfo["DBClusters"][0]["PreferredMaintenanceWindow"],
             "BackupWindow": clusterInfo["DBClusters"][0]["PreferredBackupWindow"]
         })
@@ -48,38 +50,40 @@ def adjust_clusters_maintenance_window(rds_client, records, current_datetime):
     day_of_week = current_datetime.weekday()
     print(day_of_week)
     for record in records:
-        clusterId = record["ClusterId"]
-        maintenanceWindow = record["MaintenanceWindow"]
-        backupWindow = record["BackupWindow"]
-        newMaintenanceWindow = replace_3day_later(maintenanceWindow, day_of_week)
-        if newMaintenanceWindow != maintenanceWindow:
-            update_maintenance_window(rds_client, clusterId, newMaintenanceWindow, backupWindow)
-            adjustment.append({
-                "ClusterId": clusterId,
-                "NewMaintenanceWindow": newMaintenanceWindow
-            })
+        cluster_id = record["ClusterId"]
+        aurora_version = record["AuroraVersion"]
+        maintenance_window = record["MaintenanceWindow"]
+        backup_window = record["BackupWindow"]
+        if aurora_version[:5] != "2.11.":
+            new_maintenance_window = replace_3day_later(maintenance_window, day_of_week)
+            if new_maintenance_window != maintenance_window:
+                update_maintenance_window(rds_client, cluster_id, new_maintenance_window, backup_window)
+                adjustment.append({
+                    "ClusterId": cluster_id,
+                    "NewMaintenanceWindow": new_maintenance_window
+                })
     return adjustment
 
-def update_maintenance_window(rds_client, clusterId, newMaintenanceWindow, backupWindow):
+def update_maintenance_window(rds_client, cluster_id, new_maintenance_window, backup_window):
     try:
         rds_client.modify_db_cluster(
-            DBClusterIdentifier=clusterId,
+            DBClusterIdentifier=cluster_id,
             ApplyImmediately=True,
-            PreferredMaintenanceWindow=newMaintenanceWindow)
+            PreferredMaintenanceWindow=new_maintenance_window)
     except:
         print("maintenance window might overlap with backup window")
-        newBackupWindow = adjust_backup_window(backupWindow)
+        new_backup_window = adjust_backup_window(backup_window)
         rds_client.modify_db_cluster(
-            DBClusterIdentifier=clusterId,
+            DBClusterIdentifier=cluster_id,
             ApplyImmediately=True,
-            PreferredBackupWindow=newBackupWindow)
+            PreferredBackupWindow=new_backup_window)
         rds_client.modify_db_cluster(
-            DBClusterIdentifier=clusterId,
+            DBClusterIdentifier=cluster_id,
             ApplyImmediately=True,
-            PreferredMaintenanceWindow=newMaintenanceWindow)
+            PreferredMaintenanceWindow=new_maintenance_window)
 
-def adjust_backup_window(backupWindow):
-    begin_time, end_time = backupWindow.split("-")
+def adjust_backup_window(backup_window):
+    begin_time, end_time = backup_window.split("-")
     begin_hour, begin_minute = begin_time.split(":")
     end_hour, end_minute = end_time.split(":")
     if begin_hour < 12:
