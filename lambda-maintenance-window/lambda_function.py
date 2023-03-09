@@ -109,8 +109,10 @@ def adjust_clusters_maintenance_window(rds_client, records, current_datetime):
             time.sleep(1)
             adjustment.append({
                 "ClusterId": cluster_id,
+                "Type": record_type,
                 "Engine": engine,
                 "EngineVersion": version,
+                "OldMaintenanceWindow": maintenance_window,
                 "NewMaintenanceWindow": new_maintenance_window
             })
         elif engine == "aurora-mysql" and not version.startswith("2.07") and parse_version(version) < parse_version(
@@ -121,8 +123,10 @@ def adjust_clusters_maintenance_window(rds_client, records, current_datetime):
             time.sleep(1)
             adjustment.append({
                 "ClusterId": cluster_id,
+                "Type": record_type,
                 "Engine": engine,
                 "EngineVersion": version,
+                "OldMaintenanceWindow": maintenance_window,
                 "NewMaintenanceWindow": new_maintenance_window
             })
     return adjustment
@@ -206,7 +210,6 @@ def json_serial(obj):
     if isinstance(obj, (datetime, date)):
         return obj.isoformat()
     raise TypeError("Type %s not serializable" % type(obj))
-
 
 # if __name__ == '__main__':
 #     lambda_handler({"region": "us-east-1"}, {})
