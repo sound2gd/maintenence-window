@@ -18,7 +18,7 @@ export class MaintenenceWindowStack extends Stack {
 
     // sns topic for send out email notification
     const topic = new sns.Topic(this, 'MaintenenceWindowTopic');
-    topic.addSubscription(new subs.EmailSubscription("hjjaws+auroramaintenance@amazon.com"));
+    topic.addSubscription(new subs.EmailSubscription("criswang+rdsmaintenance@amazon.com"));
 
     // lambda for perform operations
     const maintenanceWindowAdjust = new lambda.Function(this, 'MaintenanceWindowAdjust', {
